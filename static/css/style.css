@@ -507,6 +507,45 @@ body {
     font-size: 0.95rem;
 }
 
+/* Mobile responsive styles */
+@media (max-width: 768px) {
+    .comparison-grid-two {
+        grid-template-columns: 1fr;
+    }
+    
+    .comparison-header {
+        grid-template-columns: 80px 80px 80px 50px;
+        gap: 0.5rem;
+        padding: 1rem 0.5rem;
+    }
+    
+    .comparison-col h3 {
+        font-size: 0.9rem;
+    }
+    
+    .comparison-col .date {
+        font-size: 0.75rem;
+    }
+    
+    .comparison-body {
+        padding: 1rem 0.5rem;
+    }
+    
+    .metric-row {
+        grid-template-columns: 70px 70px 70px 50px;
+        gap: 0.5rem;
+        padding: 0.75rem 0;
+    }
+    
+    .metric-label {
+        font-size: 0.85rem;
+    }
+    
+    .metric-value {
+        font-size: 0.85rem;
+    }
+}
+
 .metric-value .change {
     display: inline-block;
     font-size: 0.85rem;
