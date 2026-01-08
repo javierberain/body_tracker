@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}View User - {{ user.username }} - Body Tracker{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <div class="dashboard-header">
+        <h1>{{ user.username }}'s Data</h1>
+        <div>
+            <a href="{{ url_for('trends') }}?user_id={{ user.id }}" class="btn btn-secondary">View Trends</a>
+            <a href="{{ url_for('admin_panel') }}" class="btn btn-secondary">Back to Admin</a>
+        </div>
+    </div>
+
+    {% if measurements %}
+        <div class="stats-summary">
+            <div class="stat-card">
+                <h3>Latest Weight</h3>
+                <p class="stat-value">{{ "%.1f"|format(measurements[0].weight) }} kg</p>
+                <p class="stat-date">{{ measurements[0].timestamp.strftime('%b %d, %Y') }}</p>
+            </div>
+            <div class="stat-card">
+                <h3>Body Fat</h3>
+                <p class="stat-value">{{ "%.1f"|format(measurements[0].body_fat_percentage) }}%</p>
+                <p class="stat-date">{{ measurements[0].timestamp.strftime('%b %d, %Y') }}</p>
+            </div>
+            <div class="stat-card">
+                <h3>Lean Mass</h3>
+                <p class="stat-value">{{ "%.1f"|format(measurements[0].lean_mass_percentage) }}%</p>
+                <p class="stat-date">{{ measurements[0].timestamp.strftime('%b %d, %Y') }}</p>
+            </div>
+            <div class="stat-card">
+                <h3>Total Entries</h3>
+                <p class="stat-value">{{ measurements|length }}</p>
+                <p class="stat-date">All time</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>All Measurements</h2>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Weight (kg)</th>
+                            <th>BMI</th>
+                            <th>Body Fat %</th>
+                            <th>Lean Mass %</th>
+                            <th>Visceral Fat</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for m in measurements %}
+                        <tr>
+                            <td>{{ m.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>{{ "%.1f"|format(m.weight) }}</td>
+                            <td>{{ "%.1f"|format(m.bmi) }}</td>
+                            <td>{{ "%.1f"|format(m.body_fat_percentage) }}</td>
+                            <td>{{ "%.1f"|format(m.lean_mass_percentage) }}</td>
+                            <td>{{ "%.1f"|format(m.visceral_fat_index) }}</td>
+                            <td>
+                                <form method="POST" action="{{ url_for('delete_measurement', measurement_id=m.id) }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this measurement?');">
+                                    <button type="submit" class="btn btn-small btn-danger">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <h2>No measurements yet</h2>
+            <p>This user hasn't added any measurements.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

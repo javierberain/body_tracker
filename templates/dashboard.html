@@ -1,0 +1,230 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Body Tracker{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <div class="dashboard-header">
+        <h1>Welcome, {{ user.username }}!</h1>
+        <a href="{{ url_for('add_measurement') }}" class="btn btn-primary">+ Add New Entry</a>
+    </div>
+
+    {% if measurements %}
+        {% set latest = measurements[0] %}
+        {% set previous = measurements[1] if measurements|length > 1 else None %}
+        
+        {# Find benchmark measurement #}
+        {% set benchmark = namespace(value=None) %}
+        {% if user.benchmark_measurement_id %}
+            {% for m in measurements %}
+                {% if m.id == user.benchmark_measurement_id %}
+                    {% set benchmark.value = m %}
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+
+        <h2>Progress Comparison</h2>
+        
+        <div class="comparison-grid-two">
+            <!-- Latest vs Previous -->
+            {% if previous %}
+            <div class="comparison-box">
+                <div class="comparison-header">
+                    <div class="header-spacer"></div>
+                    <div class="comparison-col">
+                        <h3>Previous</h3>
+                        <p class="date">{{ previous.timestamp.strftime('%b %d, %Y') }}</p>
+                    </div>
+                    <div class="comparison-col">
+                        <h3>Today</h3>
+                        <p class="date">{{ latest.timestamp.strftime('%b %d, %Y') }}</p>
+                    </div>
+                    <div class="header-spacer"></div>
+                </div>
+                
+                <div class="comparison-body">
+                    <div class="metric-row">
+                        <span class="metric-label">Weight</span>
+                        <span class="metric-value">{{ "%.1f"|format(previous.weight) }} kg</span>
+                        <span class="metric-value">{{ "%.1f"|format(latest.weight) }} kg</span>
+                        {% set diff = latest.weight - previous.weight %}
+                        <span style="display: inline-block; font-size: 0.85rem; font-weight: 700; padding: 0.3rem 0.6rem; border-radius: 0.25rem; min-width: 65px; text-align: center; {% if diff < 0 %}background-color: #d1fae5; color: #065f46;{% elif diff > 0 %}background-color: #fee2e2; color: #991b1b;{% else %}background-color: #f3f4f6; color: #6b7280;{% endif %}">
+                            {{ "%+.1f"|format(diff) }}
+                        </span>
+                    </div>
+                    
+                    <div class="metric-row">
+                        <span class="metric-label">Body Fat</span>
+                        <span class="metric-value">{{ "%.1f"|format(previous.body_fat_percentage) }}%</span>
+                        <span class="metric-value">{{ "%.1f"|format(latest.body_fat_percentage) }}%</span>
+                        {% set diff = latest.body_fat_percentage - previous.body_fat_percentage %}
+                        <span style="display: inline-block; font-size: 0.85rem; font-weight: 700; padding: 0.3rem 0.6rem; border-radius: 0.25rem; min-width: 65px; text-align: center; {% if diff < 0 %}background-color: #d1fae5; color: #065f46;{% elif diff > 0 %}background-color: #fee2e2; color: #991b1b;{% else %}background-color: #f3f4f6; color: #6b7280;{% endif %}">
+                            {{ "%+.1f"|format(diff) }}%
+                        </span>
+                    </div>
+                    
+                    <div class="metric-row">
+                        <span class="metric-label">Lean Mass</span>
+                        <span class="metric-value">{{ "%.1f"|format(previous.lean_mass_percentage) }}%</span>
+                        <span class="metric-value">{{ "%.1f"|format(latest.lean_mass_percentage) }}%</span>
+                        {% set diff = latest.lean_mass_percentage - previous.lean_mass_percentage %}
+                        <span style="display: inline-block; font-size: 0.85rem; font-weight: 700; padding: 0.3rem 0.6rem; border-radius: 0.25rem; min-width: 65px; text-align: center; {% if diff > 0 %}background-color: #d1fae5; color: #065f46;{% elif diff < 0 %}background-color: #fee2e2; color: #991b1b;{% else %}background-color: #f3f4f6; color: #6b7280;{% endif %}">
+                            {{ "%+.1f"|format(diff) }}%
+                        </span>
+                    </div>
+                    
+                    <div class="metric-row">
+                        <span class="metric-label">BMI</span>
+                        <span class="metric-value">{{ "%.1f"|format(previous.bmi) }}</span>
+                        <span class="metric-value">{{ "%.1f"|format(latest.bmi) }}</span>
+                        {% set diff = latest.bmi - previous.bmi %}
+                        <span style="display: inline-block; font-size: 0.85rem; font-weight: 700; padding: 0.3rem 0.6rem; border-radius: 0.25rem; min-width: 65px; text-align: center; {% if diff < 0 %}background-color: #d1fae5; color: #065f46;{% elif diff > 0 %}background-color: #fee2e2; color: #991b1b;{% else %}background-color: #f3f4f6; color: #6b7280;{% endif %}">
+                            {{ "%+.1f"|format(diff) }}
+                        </span>
+                    </div>
+                    
+                    <div class="metric-row">
+                        <span class="metric-label">Visceral Fat</span>
+                        <span class="metric-value">{{ "%.1f"|format(previous.visceral_fat_index) }}</span>
+                        <span class="metric-value">{{ "%.1f"|format(latest.visceral_fat_index) }}</span>
+                        {% set diff = latest.visceral_fat_index - previous.visceral_fat_index %}
+                        <span style="display: inline-block; font-size: 0.85rem; font-weight: 700; padding: 0.3rem 0.6rem; border-radius: 0.25rem; min-width: 65px; text-align: center; {% if diff < 0 %}background-color: #d1fae5; color: #065f46;{% elif diff > 0 %}background-color: #fee2e2; color: #991b1b;{% else %}background-color: #f3f4f6; color: #6b7280;{% endif %}">
+                            {{ "%+.1f"|format(diff) }}
+                        </span>
+                    </div>
+                    
+                    <div class="metric-row">
+                        <span class="metric-label">Muscle</span>
+                        {% set prev_muscle = (previous.lean_mass_percentage / 100) * previous.weight %}
+                        {% set latest_muscle = (latest.lean_mass_percentage / 100) * latest.weight %}
+                        <span class="metric-value">{{ "%.1f"|format(prev_muscle) }} kg</span>
+                        <span class="metric-value">{{ "%.1f"|format(latest_muscle) }} kg</span>
+                        {% set diff = latest_muscle - prev_muscle %}
+                        <span style="display: inline-block; font-size: 0.85rem; font-weight: 700; padding: 0.3rem 0.6rem; border-radius: 0.25rem; min-width: 65px; text-align: center; {% if diff > 0 %}background-color: #d1fae5; color: #065f46;{% elif diff < 0 %}background-color: #fee2e2; color: #991b1b;{% else %}background-color: #f3f4f6; color: #6b7280;{% endif %}">
+                            {{ "%+.1f"|format(diff) }}
+                        </span>
+                    </div>
+                    
+                    <div class="metric-row">
+                        <span class="metric-label">Fat</span>
+                        {% set prev_fat = (previous.body_fat_percentage / 100) * previous.weight %}
+                        {% set latest_fat = (latest.body_fat_percentage / 100) * latest.weight %}
+                        <span class="metric-value">{{ "%.1f"|format(prev_fat) }} kg</span>
+                        <span class="metric-value">{{ "%.1f"|format(latest_fat) }} kg</span>
+                        {% set diff = latest_fat - prev_fat %}
+                        <span style="display: inline-block; font-size: 0.85rem; font-weight: 700; padding: 0.3rem 0.6rem; border-radius: 0.25rem; min-width: 65px; text-align: center; {% if diff < 0 %}background-color: #d1fae5; color: #065f46;{% elif diff > 0 %}background-color: #fee2e2; color: #991b1b;{% else %}background-color: #f3f4f6; color: #6b7280;{% endif %}">
+                            {{ "%+.1f"|format(diff) }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Latest vs Benchmark -->
+            {% if benchmark.value %}
+            <div class="comparison-box benchmark-box">
+                <div class="comparison-header">
+                    <div class="header-spacer"></div>
+                    <div class="comparison-col">
+                        <h3>Benchmark</h3>
+                        <p class="date">{{ benchmark.value.timestamp.strftime('%b %d, %Y') }}</p>
+                    </div>
+                    <div class="comparison-col">
+                        <h3>Today</h3>
+                        <p class="date">{{ latest.timestamp.strftime('%b %d, %Y') }}</p>
+                    </div>
+                    <div class="header-spacer"></div>
+                </div>
+                
+                <div class="comparison-body">
+                    <div class="metric-row">
+                        <span class="metric-label">Weight</span>
+                        <span class="metric-value">{{ "%.1f"|format(benchmark.value.weight) }} kg</span>
+                        <span class="metric-value">{{ "%.1f"|format(latest.weight) }} kg</span>
+                        {% set diff = latest.weight - benchmark.value.weight %}
+                        <span style="display: inline-block; font-size: 0.85rem; font-weight: 700; padding: 0.3rem 0.6rem; border-radius: 0.25rem; min-width: 65px; text-align: center; {% if diff < 0 %}background-color: #d1fae5; color: #065f46;{% elif diff > 0 %}background-color: #fee2e2; color: #991b1b;{% else %}background-color: #f3f4f6; color: #6b7280;{% endif %}">
+                            {{ "%+.1f"|format(diff) }}
+                        </span>
+                    </div>
+                    
+                    <div class="metric-row">
+                        <span class="metric-label">Body Fat</span>
+                        <span class="metric-value">{{ "%.1f"|format(benchmark.value.body_fat_percentage) }}%</span>
+                        <span class="metric-value">{{ "%.1f"|format(latest.body_fat_percentage) }}%</span>
+                        {% set diff = latest.body_fat_percentage - benchmark.value.body_fat_percentage %}
+                        <span style="display: inline-block; font-size: 0.85rem; font-weight: 700; padding: 0.3rem 0.6rem; border-radius: 0.25rem; min-width: 65px; text-align: center; {% if diff < 0 %}background-color: #d1fae5; color: #065f46;{% elif diff > 0 %}background-color: #fee2e2; color: #991b1b;{% else %}background-color: #f3f4f6; color: #6b7280;{% endif %}">
+                            {{ "%+.1f"|format(diff) }}%
+                        </span>
+                    </div>
+                    
+                    <div class="metric-row">
+                        <span class="metric-label">Lean Mass</span>
+                        <span class="metric-value">{{ "%.1f"|format(benchmark.value.lean_mass_percentage) }}%</span>
+                        <span class="metric-value">{{ "%.1f"|format(latest.lean_mass_percentage) }}%</span>
+                        {% set diff = latest.lean_mass_percentage - benchmark.value.lean_mass_percentage %}
+                        <span style="display: inline-block; font-size: 0.85rem; font-weight: 700; padding: 0.3rem 0.6rem; border-radius: 0.25rem; min-width: 65px; text-align: center; {% if diff > 0 %}background-color: #d1fae5; color: #065f46;{% elif diff < 0 %}background-color: #fee2e2; color: #991b1b;{% else %}background-color: #f3f4f6; color: #6b7280;{% endif %}">
+                            {{ "%+.1f"|format(diff) }}%
+                        </span>
+                    </div>
+                    
+                    <div class="metric-row">
+                        <span class="metric-label">BMI</span>
+                        <span class="metric-value">{{ "%.1f"|format(benchmark.value.bmi) }}</span>
+                        <span class="metric-value">{{ "%.1f"|format(latest.bmi) }}</span>
+                        {% set diff = latest.bmi - benchmark.value.bmi %}
+                        <span style="display: inline-block; font-size: 0.85rem; font-weight: 700; padding: 0.3rem 0.6rem; border-radius: 0.25rem; min-width: 65px; text-align: center; {% if diff < 0 %}background-color: #d1fae5; color: #065f46;{% elif diff > 0 %}background-color: #fee2e2; color: #991b1b;{% else %}background-color: #f3f4f6; color: #6b7280;{% endif %}">
+                            {{ "%+.1f"|format(diff) }}
+                        </span>
+                    </div>
+                    
+                    <div class="metric-row">
+                        <span class="metric-label">Visceral Fat</span>
+                        <span class="metric-value">{{ "%.1f"|format(benchmark.value.visceral_fat_index) }}</span>
+                        <span class="metric-value">{{ "%.1f"|format(latest.visceral_fat_index) }}</span>
+                        {% set diff = latest.visceral_fat_index - benchmark.value.visceral_fat_index %}
+                        <span style="display: inline-block; font-size: 0.85rem; font-weight: 700; padding: 0.3rem 0.6rem; border-radius: 0.25rem; min-width: 65px; text-align: center; {% if diff < 0 %}background-color: #d1fae5; color: #065f46;{% elif diff > 0 %}background-color: #fee2e2; color: #991b1b;{% else %}background-color: #f3f4f6; color: #6b7280;{% endif %}">
+                            {{ "%+.1f"|format(diff) }}
+                        </span>
+                    </div>
+                    
+                    <div class="metric-row">
+                        <span class="metric-label">Muscle</span>
+                        {% set bench_muscle = (benchmark.value.lean_mass_percentage / 100) * benchmark.value.weight %}
+                        {% set latest_muscle = (latest.lean_mass_percentage / 100) * latest.weight %}
+                        <span class="metric-value">{{ "%.1f"|format(bench_muscle) }} kg</span>
+                        <span class="metric-value">{{ "%.1f"|format(latest_muscle) }} kg</span>
+                        {% set diff = latest_muscle - bench_muscle %}
+                        <span style="display: inline-block; font-size: 0.85rem; font-weight: 700; padding: 0.3rem 0.6rem; border-radius: 0.25rem; min-width: 65px; text-align: center; {% if diff > 0 %}background-color: #d1fae5; color: #065f46;{% elif diff < 0 %}background-color: #fee2e2; color: #991b1b;{% else %}background-color: #f3f4f6; color: #6b7280;{% endif %}">
+                            {{ "%+.1f"|format(diff) }}
+                        </span>
+                    </div>
+                    
+                    <div class="metric-row">
+                        <span class="metric-label">Fat</span>
+                        {% set bench_fat = (benchmark.value.body_fat_percentage / 100) * benchmark.value.weight %}
+                        {% set latest_fat = (latest.body_fat_percentage / 100) * latest.weight %}
+                        <span class="metric-value">{{ "%.1f"|format(bench_fat) }} kg</span>
+                        <span class="metric-value">{{ "%.1f"|format(latest_fat) }} kg</span>
+                        {% set diff = latest_fat - bench_fat %}
+                        <span style="display: inline-block; font-size: 0.85rem; font-weight: 700; padding: 0.3rem 0.6rem; border-radius: 0.25rem; min-width: 65px; text-align: center; {% if diff < 0 %}background-color: #d1fae5; color: #065f46;{% elif diff > 0 %}background-color: #fee2e2; color: #991b1b;{% else %}background-color: #f3f4f6; color: #6b7280;{% endif %}">
+                            {{ "%+.1f"|format(diff) }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="comparison-box benchmark-box empty-benchmark">
+                <h3>No Benchmark Set</h3>
+                <p>Go to <a href="{{ url_for('all_data') }}">All Data</a> and click "Set as Benchmark" on your goal measurement.</p>
+            </div>
+            {% endif %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <h2>No measurements yet</h2>
+            <p>Start tracking your progress by adding your first measurement!</p>
+            <a href="{{ url_for('add_measurement') }}" class="btn btn-primary">Add First Entry</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

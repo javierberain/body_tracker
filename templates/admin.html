@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Panel - Body Tracker{% endblock %}
+
+{% block content %}
+<div class="admin-page">
+    <div class="dashboard-header">
+        <h1>Admin Panel</h1>
+        <a href="{{ url_for('create_user') }}" class="btn btn-primary">+ Create New User</a>
+    </div>
+
+    <div class="card">
+        <h2>All Users</h2>
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Role</th>
+                        <th>Measurements</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user.id }}</td>
+                        <td>{{ user.username }}</td>
+                        <td>
+                            {% if user.is_admin %}
+                                <span class="badge badge-admin">Admin</span>
+                            {% else %}
+                                <span class="badge badge-user">User</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ user.measurements|length }}</td>
+                        <td>
+                            <a href="{{ url_for('view_user', user_id=user.id) }}" class="btn btn-small">View Data</a>
+                            {% if user.id != session.user_id %}
+                            <form method="POST" action="{{ url_for('delete_user', user_id=user.id) }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete {{ user.username }}? All their measurements will be permanently deleted.');">
+                                <button type="submit" class="btn btn-small btn-danger">Delete</button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

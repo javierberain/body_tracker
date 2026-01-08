@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}All Data - Body Tracker{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <div class="dashboard-header">
+        <h1>All Measurements</h1>
+        <a href="{{ url_for('add_measurement') }}" class="btn btn-primary">+ Add New Entry</a>
+    </div>
+
+    {% if measurements %}
+        <div class="card">
+            <h2>Complete History ({{ measurements|length }} entries)</h2>
+            <div class="table-container">
+                <table class="data-table data-table-wide">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Weight (kg)</th>
+                            <th>BMI</th>
+                            <th>Body Fat %</th>
+                            <th>Lean Mass %</th>
+                            <th>Visceral Fat</th>
+                            <th>Muscle (kg)</th>
+                            <th>Fat (kg)</th>
+                            <th>Waist (cm)</th>
+                            <th>Hip (cm)</th>
+                            <th>Chest (cm)</th>
+                            <th>Bicep (cm)</th>
+                            <th>Thigh (cm)</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for m in measurements %}
+                        <tr {% if m.id == user.benchmark_measurement_id %}class="benchmark-row"{% endif %}>
+                            <td>
+                                {{ m.timestamp.strftime('%Y-%m-%d %H:%M') }}
+                                {% if m.id == user.benchmark_measurement_id %} ⭐{% endif %}
+                            </td>
+                            <td>{{ "%.1f"|format(m.weight) }}</td>
+                            <td>{{ "%.1f"|format(m.bmi) }}</td>
+                            <td>{{ "%.1f"|format(m.body_fat_percentage) }}</td>
+                            <td>{{ "%.1f"|format(m.lean_mass_percentage) }}</td>
+                            <td>{{ "%.1f"|format(m.visceral_fat_index) }}</td>
+                            <td>{{ "%.1f"|format((m.lean_mass_percentage / 100) * m.weight) }}</td>
+                            <td>{{ "%.1f"|format((m.body_fat_percentage / 100) * m.weight) }}</td>
+                            <td>{% if m.waist_circumference %}{{ "%.1f"|format(m.waist_circumference) }}{% else %}-{% endif %}</td>
+                            <td>{% if m.hip_circumference %}{{ "%.1f"|format(m.hip_circumference) }}{% else %}-{% endif %}</td>
+                            <td>{% if m.chest_circumference %}{{ "%.1f"|format(m.chest_circumference) }}{% else %}-{% endif %}</td>
+                            <td>{% if m.bicep_circumference %}{{ "%.1f"|format(m.bicep_circumference) }}{% else %}-{% endif %}</td>
+                            <td>{% if m.thigh_circumference %}{{ "%.1f"|format(m.thigh_circumference) }}{% else %}-{% endif %}</td>
+                            <td class="actions-cell">
+                                {% if m.id != user.benchmark_measurement_id %}
+                                <form method="POST" action="{{ url_for('set_benchmark', measurement_id=m.id) }}" style="display: inline;">
+                                    <button type="submit" class="btn btn-small">Set Benchmark</button>
+                                </form>
+                                {% endif %}
+                                <form method="POST" action="{{ url_for('delete_measurement', measurement_id=m.id) }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this measurement?');">
+                                    <button type="submit" class="btn btn-small btn-danger">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <h2>No measurements yet</h2>
+            <p>Start tracking your progress by adding your first measurement!</p>
+            <a href="{{ url_for('add_measurement') }}" class="btn btn-primary">Add First Entry</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Body Tracker{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=20260107e">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="{{ url_for('dashboard') }}" class="nav-brand">💪 Body Tracker</a>
+            <div class="nav-menu">
+                {% if session.user_id %}
+                    <a href="{{ url_for('dashboard') }}" class="nav-link">Dashboard</a>
+                    <a href="{{ url_for('add_measurement') }}" class="nav-link">Add Entry</a>
+                    <a href="{{ url_for('all_data') }}" class="nav-link">All Data</a>
+                    <a href="{{ url_for('trends') }}" class="nav-link">Trends</a>
+                    {% if session.is_admin %}
+                        <a href="{{ url_for('admin_panel') }}" class="nav-link">Admin</a>
+                    {% endif %}
+                    <span class="nav-user">{{ session.username }}</span>
+                    <a href="{{ url_for('change_password') }}" class="nav-link">Change Password</a>
+                    <a href="{{ url_for('logout') }}" class="nav-link nav-logout">Logout</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
+                            <button class="close-alert" onclick="this.parentElement.remove()">×</button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
