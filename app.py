@@ -314,6 +314,46 @@ def change_password():
     
     return render_template('change_password.html')
 
+@app.route('/admin/add-entry', methods=['GET', 'POST'])
+@admin_required
+def admin_add_entry():
+    users = User.query.filter_by(is_admin=False).order_by(User.username).all()
+    today = datetime.now().strftime('%Y-%m-%d')
+    preselected_user_id = request.args.get('user_id', type=int)
+
+    if request.method == 'POST':
+        try:
+            def get_optional_float(field_name):
+                value = request.form.get(field_name)
+                return float(value) if value and value.strip() else None
+
+            timestamp = datetime.strptime(request.form.get('timestamp'), '%Y-%m-%d')
+            user_id = int(request.form.get('user_id'))
+
+            measurement = Measurement(
+                user_id=user_id,
+                timestamp=timestamp,
+                weight=float(request.form.get('weight')),
+                bmi=float(request.form.get('bmi')),
+                body_fat_percentage=float(request.form.get('body_fat_percentage')),
+                visceral_fat_index=float(request.form.get('visceral_fat_index')),
+                lean_mass_percentage=float(request.form.get('lean_mass_percentage')),
+                waist_circumference=get_optional_float('waist_circumference'),
+                hip_circumference=get_optional_float('hip_circumference'),
+                bicep_circumference=get_optional_float('bicep_circumference'),
+                thigh_circumference=get_optional_float('thigh_circumference'),
+                chest_circumference=get_optional_float('chest_circumference')
+            )
+            db.session.add(measurement)
+            db.session.commit()
+            user = User.query.get(user_id)
+            flash(f'Entry added successfully for {user.username}!', 'success')
+            return redirect(url_for('admin_panel'))
+        except Exception as e:
+            flash(f'Error adding entry: {str(e)}', 'danger')
+
+    return render_template('admin_add_entry.html', users=users, today=today, preselected_user_id=preselected_user_id)
+
 @app.route('/admin/delete-user/<int:user_id>', methods=['POST'])
 @admin_required
 def delete_user(user_id):

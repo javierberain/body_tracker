@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}Add Entry - Body Tracker{% endblock %}
+
+{% block content %}
+<div class="form-page">
+    <div class="card">
+        <h1>Add Entry</h1>
+        
+        <form method="POST" class="measurement-form">
+            <h3>User & Date</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="user_id">User *</label>
+                    <select id="user_id" name="user_id" required class="form-control">
+                        <option value="">-- Select user --</option>
+                        {% for user in users %}
+                            <option value="{{ user.id }}" {% if preselected_user_id == user.id %}selected{% endif %}>{{ user.username }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="timestamp">Date *</label>
+                    <input type="date" id="timestamp" name="timestamp" required value="{{ today }}">
+                </div>
+            </div>
+
+            <h3>Body Composition</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="weight">Weight (kg) *</label>
+                    <input type="number" step="0.1" id="weight" name="weight" required>
+                </div>
+                <div class="form-group">
+                    <label for="bmi">BMI *</label>
+                    <input type="number" step="0.1" id="bmi" name="bmi" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="body_fat_percentage">Body Fat (%) *</label>
+                    <input type="number" step="0.1" id="body_fat_percentage" name="body_fat_percentage" required>
+                </div>
+                <div class="form-group">
+                    <label for="lean_mass_percentage">Lean Mass (%) *</label>
+                    <input type="number" step="0.1" id="lean_mass_percentage" name="lean_mass_percentage" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="visceral_fat_index">Visceral Fat Index *</label>
+                    <input type="number" step="0.1" id="visceral_fat_index" name="visceral_fat_index" required>
+                </div>
+            </div>
+
+            <h3>Circumferences (cm) - Optional</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="waist_circumference">Waist</label>
+                    <input type="number" step="0.1" id="waist_circumference" name="waist_circumference">
+                </div>
+                <div class="form-group">
+                    <label for="hip_circumference">Hip</label>
+                    <input type="number" step="0.1" id="hip_circumference" name="hip_circumference">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="chest_circumference">Chest</label>
+                    <input type="number" step="0.1" id="chest_circumference" name="chest_circumference">
+                </div>
+                <div class="form-group">
+                    <label for="bicep_circumference">Bicep</label>
+                    <input type="number" step="0.1" id="bicep_circumference" name="bicep_circumference">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="thigh_circumference">Thigh</label>
+                    <input type="number" step="0.1" id="thigh_circumference" name="thigh_circumference">
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Save Entry</button>
+                <a href="{{ url_for('admin_panel') }}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

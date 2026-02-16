@@ -6,7 +6,10 @@
 <div class="admin-page">
     <div class="dashboard-header">
         <h1>Admin Panel</h1>
-        <a href="{{ url_for('create_user') }}" class="btn btn-primary">+ Create New User</a>
+        <div>
+            <a href="{{ url_for('admin_add_entry') }}" class="btn btn-primary">+ Add Entry</a>
+            <a href="{{ url_for('create_user') }}" class="btn btn-primary">+ Create New User</a>
+        </div>
     </div>
 
     <div class="card">
@@ -37,6 +40,9 @@
                         <td>{{ user.measurements|length }}</td>
                         <td>
                             <a href="{{ url_for('view_user', user_id=user.id) }}" class="btn btn-small">View Data</a>
+                            {% if not user.is_admin %}
+                                <a href="{{ url_for('admin_add_entry') }}?user_id={{ user.id }}" class="btn btn-small btn-primary">Add Entry</a>
+                            {% endif %}
                             {% if user.id != session.user_id %}
                             <form method="POST" action="{{ url_for('delete_user', user_id=user.id) }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete {{ user.username }}? All their measurements will be permanently deleted.');">
                                 <button type="submit" class="btn btn-small btn-danger">Delete</button>

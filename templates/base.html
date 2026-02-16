@@ -10,15 +10,17 @@
 <body>
     <nav class="navbar">
         <div class="nav-container">
-            <a href="{{ url_for('dashboard') }}" class="nav-brand">💪 Body Tracker</a>
+            <a href="{{ url_for('admin_panel') if session.is_admin else url_for('dashboard') }}" class="nav-brand"> Body Tracker</a>
             <div class="nav-menu">
                 {% if session.user_id %}
-                    <a href="{{ url_for('dashboard') }}" class="nav-link">Dashboard</a>
-                    <a href="{{ url_for('add_measurement') }}" class="nav-link">Add Entry</a>
-                    <a href="{{ url_for('all_data') }}" class="nav-link">All Data</a>
-                    <a href="{{ url_for('trends') }}" class="nav-link">Trends</a>
                     {% if session.is_admin %}
                         <a href="{{ url_for('admin_panel') }}" class="nav-link">Admin</a>
+                        <a href="{{ url_for('admin_add_entry') }}" class="nav-link">Add Entry</a>
+                    {% else %}
+                        <a href="{{ url_for('dashboard') }}" class="nav-link">Dashboard</a>
+                        <a href="{{ url_for('add_measurement') }}" class="nav-link">Add Entry</a>
+                        <a href="{{ url_for('all_data') }}" class="nav-link">All Data</a>
+                        <a href="{{ url_for('trends') }}" class="nav-link">Trends</a>
                     {% endif %}
                     <span class="nav-user">{{ session.username }}</span>
                     <a href="{{ url_for('change_password') }}" class="nav-link">Change Password</a>
@@ -27,7 +29,6 @@
             </div>
         </div>
     </nav>
-
     <div class="container">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
@@ -41,10 +42,8 @@
                 </div>
             {% endif %}
         {% endwith %}
-
         {% block content %}{% endblock %}
     </div>
-
     {% block extra_js %}{% endblock %}
 </body>
 </html>
